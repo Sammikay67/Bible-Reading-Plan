@@ -9,101 +9,158 @@
 <title>My Bible Reading</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    body {
-        margin: 0;
-        background: white;
-        color: #111;
-        font-family: -apple-system, BlinkMacSystemFont,
-                     "Segoe UI", Arial, sans-serif;
-    }
+body {
+    margin: 0;
+    background: white;
+    color: #111;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
 
-    .app {
-        max-width: 600px;
-        margin: auto;
-        padding: 30px 24px;
-    }
+.app {
+    max-width: 600px;
+    margin: auto;
+    padding: 30px 24px;
+}
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
 
-    .title {
-        font-size: 18px;
-        font-weight: 600;
-    }
+.title {
+    font-size: 18px;
+    font-weight: 600;
+}
 
-    #day {
-        color: #2859ad;
-        font-size: 22px;
-    }
+#day {
+    color: #2859ad;
+    font-size: 22px;
+}
 
-    .reading {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-height: 57px;
-        border-bottom: 1px solid #f2f2f2;
-    }
+.reading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 57px;
+    border-bottom: 1px solid #f2f2f2;
+}
 
-    .reference {
-        font-size: 21px;
-    }
+.reference {
+    font-size: 21px;
+}
 
-    .check {
-        width: 36px;
-        height: 36px;
-        border: none;
-        border-radius: 8px;
-        background: #e9e9e9;
-        cursor: pointer;
+.check {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: #e9e9e9;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+.check.done::after {
+    content: "✓";
+    color: #5ed11f;
+    font-size: 31px;
+    font-weight: bold;
+}
 
-    .check.done::after {
-        content: "✓";
-        color: #5ed11f;
-        font-size: 31px;
-        font-weight: bold;
-    }
+.bottom {
+    margin-top: 25px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
 
-    .bottom {
-        margin-top: 25px;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
+.control {
+    border: 1px solid #d6d6d6;
+    background: white;
+    border-radius: 9px;
+    padding: 9px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
 
-    .control {
-        border: 1px solid #d6d6d6;
-        background: white;
-        border-radius: 9px;
-        padding: 9px 12px;
-        font-size: 14px;
-        cursor: pointer;
-    }
+.note {
+    margin-top: 18px;
+    color: #777;
+    font-size: 12px;
+    text-align: center;
+}
 
-    .note {
-        margin-top: 18px;
-        color: #777;
-        font-size: 12px;
-        text-align: center;
-    }
+.login {
+    max-width: 420px;
+    margin: 70px auto;
+    padding: 25px;
+    text-align: center;
+}
+
+.login h2 {
+    margin-bottom: 8px;
+}
+
+.login p {
+    color: #666;
+    font-size: 14px;
+}
+
+.login input {
+    width: 100%;
+    padding: 13px;
+    margin: 6px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.login button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #2859ad;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#error {
+    color: #b00020;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+#mainApp {
+    display: none;
+}
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<div id="loginScreen" class="login">
+    <h2>My Bible Reading</h2>
+    <p>Sign in to your reading plan</p>
+
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <button id="signInButton">Sign In</button>
+
+    <div id="error"></div>
+</div>
+
+<div id="mainApp" class="app">
 
     <div class="header">
         <div class="title">My Bible Reading</div>
@@ -113,18 +170,396 @@
     <div id="readings"></div>
 
     <div class="bottom">
-        <button class="control" onclick="undoLast()">
-            ↶ Undo
-        </button>
-
-        <button class="control" onclick="resetPlan()">
-            Reset
-        </button>
+        <button class="control" id="undoButton">↶ Undo</button>
+        <button class="control" id="resetButton">Reset</button>
+        <button class="control" id="signOutButton">Sign Out</button>
     </div>
 
     <div class="note">
-        Your progress is saved automatically on this device.
+        Your progress is synced automatically across your devices.
     </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signOut
+}
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc
+}
+from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCjYwWR2PkLI8PnoxV3VA7GdqhbFD604jM",
+    authDomain: "horner-reading-plan.firebaseapp.com",
+    projectId: "horner-reading-plan",
+    storageBucket: "horner-reading-plan.firebasestorage.app",
+    messagingSenderId: "229197186668",
+    appId: "1:229197186668:web:15dcf350dce50452fefa49"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+
+const chapters = {
+"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,
+"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,
+"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,
+"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,
+"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,
+"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,
+"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,
+"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,
+"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,
+"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,
+"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,
+"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,
+"Ephesians":6,"Philippians":4,"Colossians":4,
+"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,
+"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,
+"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,
+"2 John":1,"3 John":1,"Jude":1,"Revelation":22
+};
+
+
+const lists = [
+
+["Matthew","Mark","Luke","John"],
+
+["Genesis","Exodus","Leviticus","Numbers","Deuteronomy"],
+
+["Romans","1 Corinthians","2 Corinthians","Galatians",
+"Ephesians","Philippians","Colossians","Hebrews"],
+
+["1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
+"Titus","Philemon","James","1 Peter","2 Peter","1 John",
+"2 John","3 John","Jude","Revelation"],
+
+["Job","Ecclesiastes","Song of Solomon"],
+
+["Psalms"],
+
+["Proverbs"],
+
+["Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings",
+"2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther"],
+
+["Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel",
+"Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum",
+"Habakkuk","Zephaniah","Haggai","Zechariah","Malachi"],
+
+["Acts"]
+
+];
+
+
+const startingReadings = [
+["Matthew",15],
+["Exodus",9],
+["Philippians",1],
+["Titus",1],
+["Job",2],
+["Psalms",94],
+["Proverbs",2],
+["Esther",8],
+["Zechariah",12],
+["Acts",14]
+];
+
+
+function freshPlan() {
+    return {
+        day: 994,
+        readings: startingReadings.map(r => [...r]),
+        completed: Array(10).fill(false),
+        history: []
+    };
+}
+
+
+let plan = freshPlan();
+let currentUser = null;
+
+
+function getNext(reading, listNumber) {
+
+    let book = reading[0];
+    let chapter = reading[1];
+
+    if (chapter < chapters[book]) {
+        return [book, chapter + 1];
+    }
+
+    const list = lists[listNumber];
+
+    let position = list.indexOf(book);
+
+    position++;
+
+    if (position >= list.length) {
+        position = 0;
+    }
+
+    return [list[position], 1];
+}
+
+
+async function savePlan() {
+
+    if (!currentUser) return;
+
+    await setDoc(
+        doc(db, "users", currentUser.uid),
+        {
+            plan: plan,
+            updatedAt: new Date().toISOString()
+        },
+        { merge: true }
+    );
+
+    localStorage.setItem("HornerPlan", JSON.stringify(plan));
+}
+
+
+async function loadPlan() {
+
+    if (!currentUser) return;
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const snapshot = await getDoc(userRef);
+
+    if (snapshot.exists() && snapshot.data().plan) {
+
+        plan = snapshot.data().plan;
+
+    } else {
+
+        const oldSavedPlan = localStorage.getItem("HornerPlan");
+
+        if (oldSavedPlan) {
+            try {
+                plan = JSON.parse(oldSavedPlan);
+            } catch {
+                plan = freshPlan();
+            }
+        } else {
+            plan = freshPlan();
+        }
+
+        await savePlan();
+    }
+
+    display();
+}
+
+
+function display() {
+
+    document.getElementById("day").textContent =
+        "Day " + plan.day;
+
+    const area = document.getElementById("readings");
+
+    area.innerHTML = "";
+
+    plan.readings.forEach((reading, index) => {
+
+        const row = document.createElement("div");
+        row.className = "reading";
+
+        const name = document.createElement("div");
+        name.className = "reference";
+
+        name.textContent =
+            reading[0] + " " + reading[1];
+
+        const box = document.createElement("button");
+        box.className = "check";
+
+        if (plan.completed[index]) {
+            box.classList.add("done");
+        }
+
+        box.addEventListener("click", function () {
+            toggleReading(index);
+        });
+
+        row.appendChild(name);
+        row.appendChild(box);
+
+        area.appendChild(row);
+    });
+}
+
+
+async function toggleReading(index) {
+
+    plan.completed[index] =
+        !plan.completed[index];
+
+    plan.history.push(index);
+
+    if (plan.completed.every(Boolean)) {
+
+        plan.readings =
+            plan.readings.map(
+                (reading, i) => getNext(reading, i)
+            );
+
+        plan.day++;
+
+        plan.completed =
+            Array(10).fill(false);
+
+        plan.history = [];
+    }
+
+    display();
+
+    await savePlan();
+}
+
+
+async function undoLast() {
+
+    if (!plan.history.length) return;
+
+    const index = plan.history.pop();
+
+    plan.completed[index] =
+        !plan.completed[index];
+
+    display();
+
+    await savePlan();
+}
+
+
+async function resetPlan() {
+
+    const okay =
+        confirm("Reset your reading plan to Day 994?");
+
+    if (!okay) return;
+
+    plan = freshPlan();
+
+    display();
+
+    await savePlan();
+}
+
+
+document
+.getElementById("undoButton")
+.addEventListener("click", undoLast);
+
+
+document
+.getElementById("resetButton")
+.addEventListener("click", resetPlan);
+
+
+document
+.getElementById("signOutButton")
+.addEventListener("click", async () => {
+    await signOut(auth);
+});
+
+
+document
+.getElementById("signInButton")
+.addEventListener("click", async () => {
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const errorBox =
+        document.getElementById("error");
+
+    errorBox.textContent = "";
+
+    try {
+
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+    } catch (error) {
+
+        errorBox.textContent =
+            "Sign-in didn't work. Check your email and password and try again.";
+    }
+});
+
+
+document
+.getElementById("password")
+.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+        document
+        .getElementById("signInButton")
+        .click();
+    }
+});
+
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (user) {
+
+        currentUser = user;
+
+        document
+        .getElementById("loginScreen")
+        .style.display = "none";
+
+        document
+        .getElementById("mainApp")
+        .style.display = "block";
+
+        await loadPlan();
+
+    } else {
+
+        currentUser = null;
+
+        document
+        .getElementById("mainApp")
+        .style.display = "none";
+
+        document
+        .getElementById("loginScreen")
+        .style.display = "block";
+    }
+});
+
+</script>
+
+</body>
+</html>
 
 </div>
 
