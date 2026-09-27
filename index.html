@@ -332,7 +332,7 @@ try {
     await setDoc(
         doc(db, "users", currentUser.uid),
         {
-            plan: plan,
+           plan: JSON.stringify(plan),
             updatedAt: new Date().toISOString()
         },
         { merge: true }
@@ -355,7 +355,7 @@ async function loadPlan() {
 
     if (snapshot.exists() && snapshot.data().plan) {
 
-        plan = snapshot.data().plan;
+        plan = JSON.parse(snapshot.data().plan);
 
     } else {
 
