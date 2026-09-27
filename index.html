@@ -326,7 +326,7 @@ function getNext(reading, listNumber) {
 
 
 async function savePlan() {
-
+try {
     if (!currentUser) return;
 
     await setDoc(
@@ -339,6 +339,10 @@ async function savePlan() {
     );
 
     localStorage.setItem("HornerPlan", JSON.stringify(plan));
+
+} catch (error) {
+    alert("Save error: " + error.code + " — " + error.message);
+}
 }
 
 
