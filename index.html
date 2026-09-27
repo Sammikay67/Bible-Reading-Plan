@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+
+<title>My Bible Reading</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background: white;
+        color: #111;
+        font-family: -apple-system, BlinkMacSystemFont,
+                     "Segoe UI", Arial, sans-serif;
+    }
+
+    .app {
+        max-width: 600px;
+        margin: auto;
+        padding: 30px 24px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    #day {
+        color: #2859ad;
+        font-size: 22px;
+    }
+
+    .reading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 57px;
+        border-bottom: 1px solid #f2f2f2;
+    }
+
+    .reference {
+        font-size: 21px;
+    }
+
+    .check {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        background: #e9e9e9;
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .check.done::after {
+        content: "✓";
+        color: #5ed11f;
+        font-size: 31px;
+        font-weight: bold;
+    }
+
+    .bottom {
+        margin-top: 25px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .control {
+        border: 1px solid #d6d6d6;
+        background: white;
+        border-radius: 9px;
+        padding: 9px 12px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .note {
+        margin-top: 18px;
+        color: #777;
+        font-size: 12px;
+        text-align: center;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <div class="title">My Bible Reading</div>
+        <div id="day">Day 994</div>
+    </div>
+
+    <div id="readings"></div>
+
+    <div class="bottom">
+        <button class="control" onclick="undoLast()">
+            ↶ Undo
+        </button>
+
+        <button class="control" onclick="resetPlan()">
+            Reset
+        </button>
+    </div>
+
+    <div class="note">
+        Your progress is saved automatically on this device.
+    </div>
+
+</div>
+
+
+<script>
+
+/* Number of chapters in every book */
+
+const chapters = {
+"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,
+"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,
+"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,
+"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,
+"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,
+"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,
+"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,
+"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,
+"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,
+"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,
+"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,
+"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,
+"Ephesians":6,"Philippians":4,"Colossians":4,
+"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,
+"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,
+"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,
+"2 John":1,"3 John":1,"Jude":1,"Revelation":22
+};
+
+
+/* Grant Horner's 10 reading lists */
+
+const lists = [
+
+["Matthew","Mark","Luke","John"],
+
+["Genesis","Exodus","Leviticus","Numbers","Deuteronomy"],
+
+["Romans","1 Corinthians","2 Corinthians","Galatians",
+"Ephesians","Philippians","Colossians","Hebrews"],
+
+["1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy",
+"Titus","Philemon","James","1 Peter","2 Peter","1 John",
+"2 John","3 John","Jude","Revelation"],
+
+["Job","Ecclesiastes","Song of Solomon"],
+
+["Psalms"],
+
+["Proverbs"],
+
+["Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings",
+"2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah",
+"Esther"],
+
+["Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel",
+"Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum",
+"Habakkuk","Zephaniah","Haggai","Zechariah","Malachi"],
+
+["Acts"]
+
+];
+
+
+/* Your Day 994 starting point */
+
+const startingReadings = [
+
+["Matthew",15],
+["Exodus",9],
+["Philippians",1],
+["Titus",1],
+["Job",2],
+["Psalms",94],
+["Proverbs",2],
+["Esther",8],
+["Zechariah",12],
+["Acts",14]
+
+];
+
+
+function freshPlan() {
+
+    return {
+        day: 994,
+        readings: startingReadings.map(r => [...r]),
+        completed: Array(10).fill(false),
+        history: []
+    };
+
+}
+
+
+let plan;
+
+try {
+
+    const saved =
+        localStorage.getItem("HornerPlan");
+
+    plan = saved
+        ? JSON.parse(saved)
+        : freshPlan();
+
+} catch {
+
+    plan = freshPlan();
+
+}
+
+
+function save() {
+
+    localStorage.setItem(
+        "HornerPlan",
+        JSON.stringify(plan)
+    );
+
+}
+
+
+/* Move one list to its next chapter */
+
+function getNext(reading, listNumber) {
+
+    let book = reading[0];
+    let chapter = reading[1];
+
+    if (chapter < chapters[book]) {
+
+        return [book, chapter + 1];
+
+    }
+
+    const list = lists[listNumber];
+
+    let position = list.indexOf(book);
+
+    position++;
+
+    if (position >= list.length) {
+        position = 0;
+    }
+
+    return [list[position], 1];
+
+}
+
+
+/* Draw the 10 readings */
+
+function display() {
+
+    document.getElementById("day").textContent =
+        "Day " + plan.day;
+
+    const area =
+        document.getElementById("readings");
+
+    area.innerHTML = "";
+
+    plan.readings.forEach((reading, index) => {
+
+        const row =
+            document.createElement("div");
+
+        row.className = "reading";
+
+
+        const name =
+            document.createElement("div");
+
+        name.className = "reference";
+
+        name.textContent =
+            reading[0] + " " + reading[1];
+
+
+        const box =
+            document.createElement("button");
+
+        box.className = "check";
+
+        if (plan.completed[index]) {
+            box.classList.add("done");
+        }
+
+        box.onclick = function () {
+            toggleReading(index);
+        };
+
+
+        row.appendChild(name);
+        row.appendChild(box);
+
+        area.appendChild(row);
+
+    });
+
+}
+
+
+/* Check or uncheck a reading */
+
+function toggleReading(index) {
+
+    plan.completed[index] =
+        !plan.completed[index];
+
+    plan.history.push(index);
+
+
+    /*
+       Once all 10 are complete,
+       advance every list one chapter.
+    */
+
+    if (plan.completed.every(Boolean)) {
+
+        plan.readings =
+            plan.readings.map(
+                (reading, i) =>
+                    getNext(reading, i)
+            );
+
+        plan.day++;
+
+        plan.completed =
+            Array(10).fill(false);
+
+        plan.history = [];
+
+    }
+
+    save();
+    display();
+
+}
+
+
+/* Undo most recent check */
+
+function undoLast() {
+
+    if (!plan.history.length) {
+        return;
+    }
+
+    const index =
+        plan.history.pop();
+
+    plan.completed[index] =
+        !plan.completed[index];
+
+    save();
+    display();
+
+}
+
+
+/* Return to your original Day 994 */
+
+function resetPlan() {
+
+    if (!confirm(
+        "Reset your reading plan to Day 994?"
+    )) {
+        return;
+    }
+
+    plan = freshPlan();
+
+    save();
+    display();
+
+}
+
+
+/* Start */
+
+display();
+
+</script>
+
+</body>
+</html>
