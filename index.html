@@ -203,14 +203,19 @@ import {
 from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 
+
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCjYwWR2PkLI8PnoxV3VA7GdqhbFD604jM",
-    authDomain: "horner-reading-plan.firebaseapp.com",
-    projectId: "horner-reading-plan",
-    storageBucket: "horner-reading-plan.firebasestorage.app",
-    messagingSenderId: "229197186668",
-    appId: "1:229197186668:web:15dcf350dce50452fefa49"
+  apiKey: "AIzaSyCjYwWR2PkLI8PnoxV3VA7GdqhbFD6O4jM",
+  authDomain: "horner-reading-plan.firebaseapp.com",
+  projectId: "horner-reading-plan",
+  storageBucket: "horner-reading-plan.firebasestorage.app",
+  messagingSenderId: "229197186668",
+  appId: "1:229197186668:web:15dcf350dce50452fefa49"
 };
+
+
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
