@@ -509,7 +509,7 @@ document
     } catch (error) {
 
         errorBox.textContent =
-            "Sign-in didn't work. Check your email and password and try again.";
+            "Sign-in error: " + error.code;
     }
 });
 
